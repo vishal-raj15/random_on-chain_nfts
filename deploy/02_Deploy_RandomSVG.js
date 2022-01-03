@@ -53,8 +53,8 @@ module.exports = async ({
 
     log("Let's create an NFT now!")
     let tx = await randomSVG.create({ gasLimit: 300000 })
-    let receipt = await tx.wait(1)
- //console.log( "receipt ",receipt);
+    let receipt = await tx.wait(2)
+    //console.log( "receipt ",receipt);
 
     console.log( "this is the random no that we got---------------------- ", tx);
 
@@ -64,14 +64,17 @@ module.exports = async ({
     log(`You've made your NFT! This is number ${tokenId.toString()}`)
     log("Let's wait for the Chainlink VRF node to respond...")
     if (chainId != 31337) {
+
+        for( let i=0 ; i<50 ; i++){
         await new Promise(r => setTimeout(r, 180000))
         log(`Now let's finsih the mint...`)
-        tx = await randomSVG.finishMint(tokenId, { gasLimit: 20000000 })
-        await tx.wait(50)
-        for( let i=0;i<50 ; i++){
+        tx = await randomSVG.finishMint(i, { gasLimit: 20000000 })
+        await tx.wait(1)
 
             log(`You can view the tokenURI here ${await randomSVG.tokenURI(i)}`)
+
         }
+        
     } else {
         const VRFCoordinatorMock = await deployments.get('VRFCoordinatorMock')
         vrfCoordinator = await ethers.getContractAt('VRFCoordinatorMock', VRFCoordinatorMock.address, signer)

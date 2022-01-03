@@ -12,9 +12,11 @@ contract RandomSVG is ERC721URIStorage, VRFConsumerBase, Ownable {
     event CreatedRandomSVG(uint256 indexed tokenId, string tokenURI);
     event CreatedUnfinishedRandomSVG(uint256 indexed tokenId, uint256 randomNumber);
     event requestedRandomSVG(bytes32 indexed requestId, uint256 indexed tokenId); 
+
     mapping(bytes32 => address) public requestIdToSender;
     mapping(uint256 => uint256) public tokenIdToRandomNumber;
     mapping(bytes32 => uint256) public requestIdToTokenId;
+
     bytes32 internal keyHash;
     uint256 internal fee;
     uint256 public maxNumberOfPaths;
@@ -42,12 +44,21 @@ contract RandomSVG is ERC721URIStorage, VRFConsumerBase, Ownable {
 
     function create() public returns (bytes32 requestId) {
         requestId = requestRandomness(keyHash, fee);
-        requestIdToSender[requestId] = msg.sender;
-        uint256 tokenId = tokenCounter; 
-        requestIdToTokenId[requestId] = tokenId;
-        tokenCounter = tokenCounter + 1;
-        emit requestedRandomSVG(requestId, tokenId);
+
+        for( uint i=0 ; i<50 ; i++){
+
+            bytes32 ith_requestId = keccak256(abi.encode(requestId , i));
+
+            requestIdToSender[ith_requestId] = msg.sender;
+            uint256 tokenId = tokenCounter; 
+            requestIdToTokenId[ith_requestId] = tokenId;
+            tokenCounter = tokenCounter + 1;
+            emit requestedRandomSVG(ith_requestId, tokenId);
+        }
+        
     }
+
+    // create() done
 
     function finishMint(uint256 tokenId) public {
         require(bytes(tokenURI(tokenId)).length <= 0, "tokenURI is already set!"); 
@@ -60,13 +71,30 @@ contract RandomSVG is ERC721URIStorage, VRFConsumerBase, Ownable {
         emit CreatedRandomSVG(tokenId, svg);
     }
 
+    
+    // fulfill Randomness is completed
+
     function fulfillRandomness(bytes32 requestId, uint256 randomNumber) internal override {
-        address nftOwner = requestIdToSender[requestId];
-        uint256 tokenId = requestIdToTokenId[requestId];
-        _safeMint(nftOwner, tokenId);
-        tokenIdToRandomNumber[tokenId] = randomNumber;
-        emit CreatedUnfinishedRandomSVG(tokenId, randomNumber);
+
+        for( uint i=0 ; i<50 ; i++){
+
+            bytes32 ith_requestId = keccak256(abi.encode(requestId , i));
+
+            address nftOwner = requestIdToSender[ith_requestId];
+            uint256 tokenId = requestIdToTokenId[ith_requestId];
+
+            _safeMint(nftOwner, tokenId);
+            uint256 new_randomness = uint256(keccak256(abi.encode(randomNumber , i)));
+            tokenIdToRandomNumber[tokenId] = new_randomness;
+            emit CreatedUnfinishedRandomSVG(tokenId, new_randomness);
+        }
+        // address nftOwner = requestIdToSender[requestId];
+        // uint256 tokenId = requestIdToTokenId[requestId];
+        // _safeMint(nftOwner, tokenId);
+        // tokenIdToRandomNumber[tokenId] = randomNumber;
+        // emit CreatedUnfinishedRandomSVG(tokenId, randomNumber);
     }
+
 
     function generateSVG(uint256 _randomness) public returns (string memory finalSvg) {
         // We will only use the path element, with stroke and d elements
