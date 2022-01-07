@@ -52,7 +52,7 @@ module.exports = async ({
 
 
     log("Let's create an NFT now!")
-    let tx = await randomSVG.create({ gasLimit: 300000 })
+    let tx = await randomSVG.create({ gasLimit: 3000000 })
     let receipt = await tx.wait(2)
     //console.log( "receipt ",receipt);
 
@@ -60,15 +60,10 @@ module.exports = async ({
 
     let tokenId = receipt.events[3].topics[2]
 
-    // console.log(receipt.events[1])
-    // console.log("----------------------------------------")
+    console.log("----------------------------------------")
 
-
-    // console.log(receipt.events[2])
-    // console.log("----------------------------------------")
-
-    // console.log(receipt.events[3])
-    // console.log("----------------------------------------")
+    console.log(receipt.events[3])
+    console.log("----------------------------------------")
     
     ///console.log( tokenId);
 
@@ -79,11 +74,13 @@ module.exports = async ({
 
         await new Promise(r => setTimeout(r, 180000))
         log(`Now let's finsih the mint...`)
-        tx = await randomSVG.finishMint(0, { gasLimit: 20000000 })
+
+        for( let i=0 ; i<5 ; i++){
+        tx = await randomSVG.finishMint(i, { gasLimit: 20000000 })
        await tx.wait(1)
 
-           log(`You can view the tokenURI here ${await randomSVG.tokenURI(0)}`)
-
+           log(`You can view the tokenURI here ${await randomSVG.tokenURI(i)}`)
+        }
         
         
     } else {

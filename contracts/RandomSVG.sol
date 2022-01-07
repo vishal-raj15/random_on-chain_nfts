@@ -39,19 +39,20 @@ contract RandomSVG is ERC721URIStorage, VRFConsumerBase, Ownable {
     }
 
     function create() public returns (bytes32 requestId) {
+ 
         requestId = requestRandomness(keyHash, fee);
-           // bytes32 ith_requestId = keccak256(abi.encode(requestId , i));
+        for( uint i=0 ; i<5 ; i++){
 
-        requestIdToSender[requestId] = msg.sender;
-        uint256 tokenId = tokenCounter; 
-        requestIdToTokenId[requestId] = tokenId;
-        tokenCounter = tokenCounter + 1;
-        emit requestedRandomSVG(requestId, tokenId);
-    
+            bytes32 ith_requestId = keccak256(abi.encode(requestId , i));
+            requestIdToSender[ith_requestId] = msg.sender;
+            uint256 tokenId = tokenCounter; 
+            requestIdToTokenId[ith_requestId] = tokenId;
+            tokenCounter = tokenCounter + 1;
+            emit requestedRandomSVG(ith_requestId, tokenId);
+        
+        }
         
     }
-
-    // create() done
 
     function finishMint(uint256 tokenId) public {
         require(bytes(tokenURI(tokenId)).length <= 0, "tokenURI is already set!"); 
@@ -64,38 +65,25 @@ contract RandomSVG is ERC721URIStorage, VRFConsumerBase, Ownable {
         emit CreatedRandomSVG(tokenId, svg);
     }
 
-    
-    // fulfill Randomness is completed
-
     function fulfillRandomness(bytes32 requestId, uint256 randomNumber) internal override {
 
-       
+        for( uint i=0 ; i<5 ; i++){
+            bytes32 ith_requestId = keccak256(abi.encode(requestId , i));
 
-           // bytes32 ith_requestId = keccak256(abi.encode(requestId , i));
-
-            address nftOwner = requestIdToSender[requestId];
-            uint256 tokenId = requestIdToTokenId[requestId];
+            address nftOwner = requestIdToSender[ith_requestId];
+            uint256 tokenId = requestIdToTokenId[ith_requestId];
 
             _safeMint(nftOwner, tokenId);
-           // uint256 new_randomness = uint256(keccak256(abi.encode(randomNumber , i)));
-            tokenIdToRandomNumber[tokenId] = randomNumber;
-            emit CreatedUnfinishedRandomSVG(tokenId, randomNumber);
-        
-        // address nftOwner = requestIdToSender[requestId];
-        // uint256 tokenId = requestIdToTokenId[requestId];
-        // _safeMint(nftOwner, tokenId);
-        // tokenIdToRandomNumber[tokenId] = randomNumber;
-        // emit CreatedUnfinishedRandomSVG(tokenId, randomNumber);
+            uint256 new_randomness = uint256(keccak256(abi.encode(randomNumber , i)));
+            tokenIdToRandomNumber[tokenId] = new_randomness;
+            emit CreatedUnfinishedRandomSVG(tokenId, new_randomness);
+
+           }
     }
 
 
     function generateSVG(uint256 _randomness) public returns (string memory finalSvg) {
         // We will only use the path element, with stroke and d elements
-
-        // <svg height="210" width="500" style="background-color:black">
-        // <line x1="0" y1="0" x2="200" y2="200" style="stroke:hsl(0,100%,50%);stroke-width:10;" />
-        // <line x1="200" y1="200" x2="400" y2="10" style="stroke:hsl(200,100%,45%);stroke-width:10" />
-        // </svg>
         uint256 randomv2 = uint256(keccak256(abi.encode(_randomness)));
         uint256 lineColor = (randomv2 % 255) + 1;
         uint256 lineWidth = 15;
@@ -120,9 +108,6 @@ contract RandomSVG is ERC721URIStorage, VRFConsumerBase, Ownable {
     }
 
     function generatePath(uint256 _randomness,uint256 lineColor, uint256 lineWidth ,uint256 lineBrightness) public returns(string memory pathSvg) {
-        //uint256 numberOfPathCommands = (_randomness % maxNumberOfPathCommands) + 1;
-        //<line x1="0" y1="0" x2="200" y2="200" stroke='hsl(0,100%,50%)' stroke-width='10' />
-        // <line x1="0" y1="0" x2="200" y2="200" style="stroke:rgb(255,0,0);stroke-width:2" />
       
         pathSvg = "<line ";
         string memory pathCommand = generatePathCommand(uint256(keccak256(abi.encode(_randomness))));
@@ -181,12 +166,9 @@ contract RandomSVG is ERC721URIStorage, VRFConsumerBase, Ownable {
         return string(bstr);
     }
 
-    // You could also just upload the raw SVG and have solildity convert it!
     function svgToImageURI(string memory svg) public pure returns (string memory) {
-        // example:
-        // <svg width='500' height='500' viewBox='0 0 285 350' fill='none' xmlns='http://www.w3.org/2000/svg'><path fill='black' d='M150,0,L75,200,L225,200,Z'></path></svg>
-        // data:image/svg+xml;base64,PHN2ZyB3aWR0aD0nNTAwJyBoZWlnaHQ9JzUwMCcgdmlld0JveD0nMCAwIDI4NSAzNTAnIGZpbGw9J25vbmUnIHhtbG5zPSdodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2Zyc+PHBhdGggZmlsbD0nYmxhY2snIGQ9J00xNTAsMCxMNzUsMjAwLEwyMjUsMjAwLFonPjwvcGF0aD48L3N2Zz4=
-        string memory baseURL = "data:image/svg+xml;base64,";
+      
+      string memory baseURL = "data:image/svg+xml;base64,";
         string memory svgBase64Encoded = Base64.encode(bytes(string(abi.encodePacked(svg))));
         return string(abi.encodePacked(baseURL,svgBase64Encoded));
     }
