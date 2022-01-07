@@ -19,10 +19,8 @@ contract RandomSVG is ERC721URIStorage, VRFConsumerBase, Ownable {
 
     bytes32 internal keyHash;
     uint256 internal fee;
-    uint256 public maxNumberOfPaths;
     uint256 public maxNumberOfPathCommands;
     uint256 public size;
-    string[] public pathCommands;
     uint256 public startx = 0;
     uint256 public starty = 0;
 
@@ -33,9 +31,7 @@ contract RandomSVG is ERC721URIStorage, VRFConsumerBase, Ownable {
         tokenCounter = 0;
         keyHash = _keyhash;
         fee = _fee;
-        maxNumberOfPaths = 7;
-        maxNumberOfPathCommands = 5;
-        size = 500;
+        size = 128;
     }
 
     function withdraw() public payable onlyOwner {
@@ -44,17 +40,14 @@ contract RandomSVG is ERC721URIStorage, VRFConsumerBase, Ownable {
 
     function create() public returns (bytes32 requestId) {
         requestId = requestRandomness(keyHash, fee);
+           // bytes32 ith_requestId = keccak256(abi.encode(requestId , i));
 
-        for( uint i=0 ; i<50 ; i++){
-
-            bytes32 ith_requestId = keccak256(abi.encode(requestId , i));
-
-            requestIdToSender[ith_requestId] = msg.sender;
-            uint256 tokenId = tokenCounter; 
-            requestIdToTokenId[ith_requestId] = tokenId;
-            tokenCounter = tokenCounter + 1;
-            emit requestedRandomSVG(ith_requestId, tokenId);
-        }
+        requestIdToSender[requestId] = msg.sender;
+        uint256 tokenId = tokenCounter; 
+        requestIdToTokenId[requestId] = tokenId;
+        tokenCounter = tokenCounter + 1;
+        emit requestedRandomSVG(requestId, tokenId);
+    
         
     }
 
@@ -76,18 +69,18 @@ contract RandomSVG is ERC721URIStorage, VRFConsumerBase, Ownable {
 
     function fulfillRandomness(bytes32 requestId, uint256 randomNumber) internal override {
 
-        for( uint i=0 ; i<50 ; i++){
+       
 
-            bytes32 ith_requestId = keccak256(abi.encode(requestId , i));
+           // bytes32 ith_requestId = keccak256(abi.encode(requestId , i));
 
-            address nftOwner = requestIdToSender[ith_requestId];
-            uint256 tokenId = requestIdToTokenId[ith_requestId];
+            address nftOwner = requestIdToSender[requestId];
+            uint256 tokenId = requestIdToTokenId[requestId];
 
             _safeMint(nftOwner, tokenId);
-            uint256 new_randomness = uint256(keccak256(abi.encode(randomNumber , i)));
-            tokenIdToRandomNumber[tokenId] = new_randomness;
-            emit CreatedUnfinishedRandomSVG(tokenId, new_randomness);
-        }
+           // uint256 new_randomness = uint256(keccak256(abi.encode(randomNumber , i)));
+            tokenIdToRandomNumber[tokenId] = randomNumber;
+            emit CreatedUnfinishedRandomSVG(tokenId, randomNumber);
+        
         // address nftOwner = requestIdToSender[requestId];
         // uint256 tokenId = requestIdToTokenId[requestId];
         // _safeMint(nftOwner, tokenId);
@@ -105,17 +98,17 @@ contract RandomSVG is ERC721URIStorage, VRFConsumerBase, Ownable {
         // </svg>
         uint256 randomv2 = uint256(keccak256(abi.encode(_randomness)));
         uint256 lineColor = (randomv2 % 255) + 1;
-        uint256 lineWidth = 30;
+        uint256 lineWidth = 15;
         uint256 lineBrightness = 50;
         finalSvg = string(abi.encodePacked("<svg xmlns='http://www.w3.org/2000/svg' height='", uint2str(size), "' width='", uint2str(size), "' style='background-color:black' >"));
         
-        for( uint i=0 ; i<7 ; i++){ 
+        for( uint i=0 ; i<4 ; i++){ 
 
             uint256 nwrand = uint256(keccak256(abi.encode(_randomness , i)));
             string memory pathSvg = generatePath( nwrand,lineColor,lineWidth,lineBrightness);
             finalSvg = string(abi.encodePacked(finalSvg, pathSvg));
-            if( lineWidth + 3 > 0){
-                lineWidth -= 3;
+            if( lineWidth + 2 > 0){
+                lineWidth -= 2;
             }
             if( lineBrightness + 5 > 0){
                 lineBrightness -= 5;
@@ -205,9 +198,7 @@ contract RandomSVG is ERC721URIStorage, VRFConsumerBase, Ownable {
                     Base64.encode(
                         bytes(
                             abi.encodePacked(
-                                '{"name":"',
-                                "SVG NFT", // You can add whatever name here
-                                '", "description":"An NFT based on SVG!", "attributes":"", "image":"',imageURI,'"}'
+                                '{"image":"',imageURI,'"}'
                             )
                         )
                     )
