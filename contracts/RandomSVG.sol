@@ -11,7 +11,7 @@ contract RandomSVG is ERC721URIStorage, VRFConsumerBase, Ownable {
 
     event CreatedRandomSVG(uint256 indexed tokenId, string tokenURI);
     event CreatedUnfinishedRandomSVG(uint256 indexed tokenId, uint256 randomNumber);
-    event requestedRandomSVG(bytes32 indexed requestId, uint256 indexed tokenId); 
+    event requestedRandomSVG(bytes32 indexed requestId, uint256 indexed tokenId);
 
     mapping(bytes32 => address) public requestIdToSender;
     mapping(uint256 => uint256) public tokenIdToRandomNumber;
@@ -31,7 +31,7 @@ contract RandomSVG is ERC721URIStorage, VRFConsumerBase, Ownable {
         tokenCounter = 0;
         keyHash = _keyhash;
         fee = _fee;
-        size = 128;
+        size = 250;
     }
 
     function withdraw() public payable onlyOwner {
@@ -41,13 +41,14 @@ contract RandomSVG is ERC721URIStorage, VRFConsumerBase, Ownable {
     function create() public returns (bytes32 requestId) {
  
         requestId = requestRandomness(keyHash, fee);
-        for( uint i=0 ; i<5 ; i++){
+        for( uint i=0 ; i<15 ; i++){
 
             bytes32 ith_requestId = keccak256(abi.encode(requestId , i));
             requestIdToSender[ith_requestId] = msg.sender;
             uint256 tokenId = tokenCounter; 
             requestIdToTokenId[ith_requestId] = tokenId;
             tokenCounter = tokenCounter + 1;
+
             emit requestedRandomSVG(ith_requestId, tokenId);
         
         }
@@ -67,7 +68,7 @@ contract RandomSVG is ERC721URIStorage, VRFConsumerBase, Ownable {
 
     function fulfillRandomness(bytes32 requestId, uint256 randomNumber) internal override {
 
-        for( uint i=0 ; i<5 ; i++){
+        for( uint i=0 ; i<15 ; i++){
             bytes32 ith_requestId = keccak256(abi.encode(requestId , i));
 
             address nftOwner = requestIdToSender[ith_requestId];
@@ -86,7 +87,7 @@ contract RandomSVG is ERC721URIStorage, VRFConsumerBase, Ownable {
         // We will only use the path element, with stroke and d elements
         uint256 randomv2 = uint256(keccak256(abi.encode(_randomness)));
         uint256 lineColor = (randomv2 % 255) + 1;
-        uint256 lineWidth = 15;
+        uint256 lineWidth = 20;
         uint256 lineBrightness = 50;
         finalSvg = string(abi.encodePacked("<svg xmlns='http://www.w3.org/2000/svg' height='", uint2str(size), "' width='", uint2str(size), "' style='background-color:black' >"));
         

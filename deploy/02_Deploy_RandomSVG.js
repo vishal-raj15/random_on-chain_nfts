@@ -38,7 +38,7 @@ module.exports = async ({
     log(`Verify with:\n npx hardhat verify --network ${networkName} ${RandomSVG.address} ${args.toString().replace(/,/g, " ")}`)
     const RandomSVGContract = await ethers.getContractFactory("RandomSVG")
     const accounts = await hre.ethers.getSigners()
-    const signer = accounts[0]
+    const signer = accounts[2]
     const randomSVG = new ethers.Contract(RandomSVG.address, RandomSVGContract.interface, signer)
 
     // fund with LINK
@@ -60,9 +60,9 @@ module.exports = async ({
 
     let tokenId = receipt.events[3].topics[2]
 
-    console.log("----------------------------------------")
+   // console.log("----------------------------------------")
 
-    console.log(receipt.events[3])
+  //  console.log(receipt.events[3])
     console.log("----------------------------------------")
     
     ///console.log( tokenId);
@@ -75,7 +75,7 @@ module.exports = async ({
         await new Promise(r => setTimeout(r, 180000))
         log(`Now let's finsih the mint...`)
 
-        for( let i=0 ; i<5 ; i++){
+        for( let i=0 ; i<15 ; i++){
         tx = await randomSVG.finishMint(i, { gasLimit: 20000000 })
        await tx.wait(1)
 
