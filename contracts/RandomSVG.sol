@@ -10,7 +10,7 @@ contract RandomSVG is ERC721URIStorage, VRFConsumerBase, Ownable {
     uint256 public tokenCounter;
 
     event CreatedRandomSVG(uint256 indexed tokenId, string tokenURI);
-    event CreatedUnfinishedRandomSVG(uint256 indexed tokenId, uint256 randomNumber);
+    event CreatedUnfinishedRandomSVG(uint256 indexed randomNumber);
     event requestedRandomSVG(bytes32 indexed requestId, uint256 indexed tokenId);
 
     mapping(bytes32 => address) public requestIdToSender;
@@ -23,6 +23,7 @@ contract RandomSVG is ERC721URIStorage, VRFConsumerBase, Ownable {
     uint256 public size;
     uint256 public startx = 0;
     uint256 public starty = 0;
+    uint256 public rand;
 
     constructor(address _VRFCoordinator, address _LinkToken, bytes32 _keyhash, uint256 _fee) 
     VRFConsumerBase(_VRFCoordinator, _LinkToken)
@@ -31,25 +32,25 @@ contract RandomSVG is ERC721URIStorage, VRFConsumerBase, Ownable {
         tokenCounter = 0;
         keyHash = _keyhash;
         fee = _fee;
-        size = 250;
+        size = 500;
     }
 
     function withdraw() public payable onlyOwner {
         payable(owner()).transfer(address(this).balance);
     }
 
-    function create() public returns (bytes32 requestId) {
+    function create( uint256 rep) public returns (bytes32 requestId) {
  
         requestId = requestRandomness(keyHash, fee);
-        for( uint i=0 ; i<15 ; i++){
+        uint256 tokenId = tokenCounter; 
+        for( uint256 i=0 ; i< rep ; i++){
 
             bytes32 ith_requestId = keccak256(abi.encode(requestId , i));
             requestIdToSender[ith_requestId] = msg.sender;
-            uint256 tokenId = tokenCounter; 
+            
             requestIdToTokenId[ith_requestId] = tokenId;
-            tokenCounter = tokenCounter + 1;
-
-            emit requestedRandomSVG(ith_requestId, tokenId);
+            tokenCounter = tokenCounter + 1;            
+        emit requestedRandomSVG(ith_requestId, tokenId);
         
         }
         
@@ -68,19 +69,50 @@ contract RandomSVG is ERC721URIStorage, VRFConsumerBase, Ownable {
 
     function fulfillRandomness(bytes32 requestId, uint256 randomNumber) internal override {
 
-        for( uint i=0 ; i<15 ; i++){
-            bytes32 ith_requestId = keccak256(abi.encode(requestId , i));
-
-            address nftOwner = requestIdToSender[ith_requestId];
-            uint256 tokenId = requestIdToTokenId[ith_requestId];
-
-            _safeMint(nftOwner, tokenId);
-            uint256 new_randomness = uint256(keccak256(abi.encode(randomNumber , i)));
-            tokenIdToRandomNumber[tokenId] = new_randomness;
-            emit CreatedUnfinishedRandomSVG(tokenId, new_randomness);
-
-           }
+            rand = randomNumber;
+       
     }
+
+     function mintNft( uint256 tokenId , address NFTowner , uint256 delta) public {
+
+        _safeMint( NFTowner , tokenId);
+        uint256 new_randomness = uint256(keccak256(abi.encode(rand , delta)));
+        tokenIdToRandomNumber[tokenId] = new_randomness;
+
+    }
+
+    // for( uint i=0 ; i<30 ; i++){
+          //  bytes32 ith_requestId = keccak256(abi.encode(requestId , i));
+
+           // address nftOwner = requestIdToSender[ith_requestId];
+           // uint256 tokenId = requestIdToTokenId[ith_requestId];
+
+           // _safeMint(nftOwner, tokenId);
+            //uint256 new_randomness = uint256(keccak256(abi.encode(randomNumber , i)));
+            //tokenIdToRandomNumber[tokenId] = new_randomness;
+           // emit CreatedUnfinishedRandomSVG(tokenId, new_randomness);
+
+         //  }
+
+    // function tes() public returns (uint256 randomness){
+    //         randomness = rand;
+    //       // emit CreatedUnfinishedRandomSVG(rand);
+        
+    // } 
+    // for( uint i=0 ; i<30 ; i++){
+          //  bytes32 ith_requestId = keccak256(abi.encode(requestId , i));
+
+           // address nftOwner = requestIdToSender[ith_requestId];
+           // uint256 tokenId = requestIdToTokenId[ith_requestId];
+
+           // _safeMint(nftOwner, tokenId);
+            //uint256 new_randomness = uint256(keccak256(abi.encode(randomNumber , i)));
+            //tokenIdToRandomNumber[tokenId] = new_randomness;
+           // emit CreatedUnfinishedRandomSVG(tokenId, new_randomness);
+
+         //  }
+
+   
 
 
     function generateSVG(uint256 _randomness) public returns (string memory finalSvg) {
@@ -91,7 +123,7 @@ contract RandomSVG is ERC721URIStorage, VRFConsumerBase, Ownable {
         uint256 lineBrightness = 50;
         finalSvg = string(abi.encodePacked("<svg xmlns='http://www.w3.org/2000/svg' height='", uint2str(size), "' width='", uint2str(size), "' style='background-color:black' >"));
         
-        for( uint i=0 ; i<4 ; i++){ 
+        for( uint i=0 ; i<6 ; i++){ 
 
             uint256 nwrand = uint256(keccak256(abi.encode(_randomness , i)));
             string memory pathSvg = generatePath( nwrand,lineColor,lineWidth,lineBrightness);

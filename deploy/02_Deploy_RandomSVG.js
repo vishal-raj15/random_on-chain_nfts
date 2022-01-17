@@ -1,6 +1,7 @@
 let { networkConfig, getNetworkIdFromName } = require('../helper-hardhat-config')
 const fs = require('fs')
 const { encodeOracleRequest } = require('@chainlink/test-helpers/dist/src/contracts/coordinator')
+const { sign } = require('crypto')
 
 module.exports = async ({
     getNamedAccounts,
@@ -52,36 +53,61 @@ module.exports = async ({
 
 
     log("Let's create an NFT now!")
-    let tx = await randomSVG.create({ gasLimit: 3000000 })
+    let tx = await randomSVG.create( 50 ,{ gasLimit: 3000000 })
     let receipt = await tx.wait(2)
-    //console.log( "receipt ",receipt);
+  // console.log( "account ",signer);
 
-    console.log( "this is the random no that we got---------------------- ", tx);
+  // console.log( "receipt " , receipt);
 
-    let tokenId = receipt.events[3].topics[2]
+    let tokenId = receipt.events[3].topics[2];
+    let tk = receipt.events[3].args.tokenId;
+    tk = tk.toString();
+    tk = parseInt(tk);
+    
+    console.log(" tk " , tk);
+    
+  console.log(" tokenId ", tokenId.toString());
+
+
+
+
+//    let tx2 = await randomSVG.tes();
+//    let re = await tx2.wait(1);
+//    console.log( "random " ,tx2); 
+
+   for( let i=tk ; i<tk+50 ; i++){
+       console.log( " minting the nft ...............")
+
+    tx2 = await randomSVG.mintNft( i ,signer.address , i, {gasLimit: 2000000});
+    await tx2.wait(1);
+   }
+
+    //console.log( "this is the random no that we got---------------------- ", tx);
+
+    //let tokenId = receipt.events[3].topics[2];
 
    // console.log("----------------------------------------")
+    
 
-  //  console.log(receipt.events[3])
+
     console.log("----------------------------------------")
     
-    ///console.log( tokenId);
-
     
-    log(`You've made your NFT! This is number ${tokenId.toString()}`)
+   // log(`You've made your NFT! This is number ${tokenId.toString()}`)
     log("Let's wait for the Chainlink VRF node to respond...")
     if (chainId != 31337) {
 
-        await new Promise(r => setTimeout(r, 180000))
+       await new Promise(r => setTimeout(r, 180000))
         log(`Now let's finsih the mint...`)
 
-        for( let i=0 ; i<15 ; i++){
+        for( let i=tk ; i<tk+50 ; i++){
         tx = await randomSVG.finishMint(i, { gasLimit: 20000000 })
        await tx.wait(1)
 
            log(`You can view the tokenURI here ${await randomSVG.tokenURI(i)}`)
-        }
+       
         
+        }
         
     } else {
         const VRFCoordinatorMock = await deployments.get('VRFCoordinatorMock')
