@@ -13,7 +13,7 @@ function Header(){
 
     return(
 
-        <header className="flex flex-col sm:flex-row m-2 justify-between
+        <header className="flex flex-col sm:flex-row m-2 mt-10 justify-between
         items-center h-auto"> 
 
         <div className="flex flex-grow justify-evenly max-w-sm"> 

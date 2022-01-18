@@ -7,7 +7,7 @@ export default function MintingFrontPage(){
 
         <div>
 
-            <Header />
+            {/* <Header /> */}
             <MintPage />
         </div>
     )

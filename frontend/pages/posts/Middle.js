@@ -4,12 +4,13 @@ import Image from "next/image";
 function Middle(){
 
     return (
-        <div className="">
-        <div className=" flex-grow grid place-items-center tracking-widest"> 
-        <h1 className=" m-2 text-justify text-lg "> RIBBONS is a minting platform to generate On-Chain i.e  Art works without being dependend on IFPS.</h1>
+        <div className="min-h-screen">
+        <div className=" flex-grow grid items-center tracking-widest"> 
+        <h1 className=" mt-20 text-center  md:text-9xl text-6xl text-white font-bold mx-auto max-w-6xl"> RIBBONS</h1>
 
-            <h1 className=" m-2 text-justify text-lg "> Built on rinkeby network with the help of chainlink protocol</h1>
-            <p1 className=" m-2 text-justify text-lg"> Fully decentralise NFTs</p1>
+           
+        <h1 className=" mt-5 text-center  md:text-9xl text-6xl text-white font-bold"> an On-Chain Artwork</h1>
+        <h1 className=" mt-5 text-center text-4xl md:text-5xl text-white"> without being dependend on IFPS.</h1>
 
         </div>
 
@@ -56,10 +57,8 @@ function Middle(){
         </div>
 
         
-        <div className=" flex-grow grid place-items-center tracking-widest"> 
-            <h1 className=" m-2 text-justify text-lg "> These are some examples of output SVG images </h1>
-            <p1 className=" m-2 text-justify text-lg"> This minting process outputs a base64 Incoded URI of an SVG image</p1>
-
+        <div className=" flex-grow grid place-items-center"> 
+            <h1 className=" m-2 text-justify text-4xl"> Ready to mint your own NFT ? </h1>
         </div>
 
         </div>

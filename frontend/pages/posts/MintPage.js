@@ -109,23 +109,27 @@ export default function Home() {
   return (
     <div >
      
-     <div className=" flex-grow grid place-items-center tracking-widest"> 
-            <h1 className=" m-2 text-justify text-lg "> This is a random digital art generatator platform on chain on rinkeby network with the help of chainlink protocol</h1>
-            <p1 className=" m-2 text-justify text-lg"> Fully decentralise NFTs</p1>
+     <div className="mt-40 flex-grow grid place-items-center tracking-widest"> 
+            <p1 className=" mt-20 text-center text-5xl"> Fully decentralise NFTs</p1>
+
             
-            <p1 className=" m-2 text-justify text-lg"> Mint your own NFTs on-chain</p1>
+            <p1 className=" m-2 text-center text-5xl"> Mint your own NFTs on-chain</p1>
+            {/* <h1 className=" m-5 text-justify text-3xl "> This is a random digital art generatator platform on-chain on rinkeby network with the help of chainlink protocol</h1> */}
 
         </div>
 
-        <div className="mt-10 flex-grow grid place-items-center tracking-widest"> 
+        <div className="mt-10 flex-grow grid place-items-center "> 
 
 
-    <input onChange={e => setAmount(e.target.value)} placeholder="Number of NFTs" />
+    <input className='place-items-center text-center h-20 w-96 text-4xl text-white rounded-lg 
+                      bg-black border-white border-2 focus:border-blue-500 ' onChange={e => setAmount(e.target.value)} placeholder="Number of NFTs" />
 
-    <button class="mt-5 py-2 px-4 rounded bg-green-600 text-white"
+    <button class="mt-5 py-4 px-10 rounded bg-[#4FBDBA] text-white hover:bg-[#35858B]"
       onClick={mint}>
       MINT
     </button>
+
+
 
     </div>
 
