@@ -53,20 +53,20 @@ module.exports = async ({
 
 
     log("Let's create an NFT now!")
-    let tx = await randomSVG.create( 50 ,{ gasLimit: 3000000 })
-    let receipt = await tx.wait(2)
+    let tx = await randomSVG.create( 2 ,{ gasLimit: 3000000 })
+    let receipt = await tx.wait(1)
   // console.log( "account ",signer);
 
   // console.log( "receipt " , receipt);
 
-    let tokenId = receipt.events[3].topics[2];
+   // let tokenId = receipt.events[3].topics[2];
     let tk = receipt.events[3].args.tokenId;
     tk = tk.toString();
     tk = parseInt(tk);
     
     console.log(" tk " , tk);
     
-  console.log(" tokenId ", tokenId.toString());
+ // console.log(" tokenId ", tokenId.toString());
 
 
 
@@ -75,20 +75,18 @@ module.exports = async ({
 //    let re = await tx2.wait(1);
 //    console.log( "random " ,tx2); 
 
-   for( let i=tk ; i<tk+50 ; i++){
+   for( let i=tk ; i<tk+2 ; i++){
        console.log( " minting the nft ...............")
 
     tx2 = await randomSVG.mintNft( i ,signer.address , i, {gasLimit: 2000000});
     await tx2.wait(1);
    }
 
-    //console.log( "this is the random no that we got---------------------- ", tx);
+    console.log( "this is the random no that we got---------------------- ", tx);
 
-    //let tokenId = receipt.events[3].topics[2];
+  //  let tokenId = receipt.events[3].topics[2];
 
-   // console.log("----------------------------------------")
-    
-
+  
 
     console.log("----------------------------------------")
     
@@ -100,7 +98,7 @@ module.exports = async ({
        await new Promise(r => setTimeout(r, 180000))
         log(`Now let's finsih the mint...`)
 
-        for( let i=tk ; i<tk+50 ; i++){
+        for( let i=tk ; i<tk+2 ; i++){
         tx = await randomSVG.finishMint(i, { gasLimit: 20000000 })
        await tx.wait(1)
 
